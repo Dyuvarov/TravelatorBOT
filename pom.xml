@@ -42,6 +42,8 @@
     </dependencies>
 
     <build>
+        <finalName>TravelatorBot</finalName>
+        <defaultGoal>package</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

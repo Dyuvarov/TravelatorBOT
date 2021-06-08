@@ -1,4 +1,4 @@
-package com.dyvarov.travelatorbot;
+package com.dyuvarov.travelatorbot;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
