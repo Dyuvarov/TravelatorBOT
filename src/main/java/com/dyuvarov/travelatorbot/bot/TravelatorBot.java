@@ -1,5 +1,7 @@
 package com.dyuvarov.travelatorbot.bot;
 
+import com.dyuvarov.travelatorbot.dao.BotDAO;
+import com.dyuvarov.travelatorbot.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -15,11 +17,14 @@ import java.util.List;
 public class TravelatorBot extends TelegramLongPollingBot {
     private String botUserName;
     private String botToken;
+    private BotDAO botDAO;
 
     public TravelatorBot(@Value("${bot.userName}") String botUserName,
-                         @Value("${bot.token}") String botToken) {
+                         @Value("${bot.token}") String botToken,
+                         BotDAO botDAO) {
         this.botUserName = botUserName;
         this.botToken = botToken;
+        this.botDAO = botDAO;
     }
 
     @Override
@@ -34,9 +39,23 @@ public class TravelatorBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        Long chatId = update.getMessage().getChatId();
+        Message message = update.getMessage();
+        User user = botDAO.getUser(message);
+
+        switch (message.getText()){
+            case ("/start"): {
+                sendMessageToUser(user, "Привет! Я помогу тебе составить бюджет твоего путешествия!");
+                sendMessageToUser(user, "В какой город направимся?");
+                user.setState(BotState.WAITING_DESTINATION);
+                break;
+            }
+        }
+    }
+
+    public void sendMessageToUser(User user, String message) {
+        SendMessage sendMessage = new SendMessage(user.getChatId(), message);
         try {
-           execute(new SendMessage(chatId.toString(), "Hi!"));
+            execute(sendMessage);
         }
         catch (TelegramApiException e) {
             e.printStackTrace();

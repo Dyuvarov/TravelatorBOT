@@ -1,5 +1,6 @@
 package com.dyuvarov.travelatorbot.dao;
 
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.springframework.stereotype.Component;
 import com.dyuvarov.travelatorbot.model.User;
 
@@ -14,10 +15,11 @@ public class BotDAO {
         users = new ArrayList<>();
     }
 
-    public User getUser(String chatId, String userName) {
+    public User getUser(Message message) {
+        String chatId = message.getChat().getId().toString();
         User user = users.stream().filter(x -> x.getChatId().equals(chatId)).findAny().orElse(null);
         if (user == null) {
-            user = new User(userName, chatId);
+            user = new User(message.getFrom().getUserName(), chatId);
         }
         return user;
     }
