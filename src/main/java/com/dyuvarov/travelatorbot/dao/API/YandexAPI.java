@@ -30,7 +30,8 @@ public class YandexAPI implements MapsAPI {
     }
 
     private String createQuery(String city, String text) {
-        String query = URL + "?apikey="+APIKEY + "&text=" + text + "&lang=ru_RU" + "&type=biz" + "&ll=49.12214,55.78874"
+        String query = URL + "?apikey=" + APIKEY + "&text=" + text + "&lang=ru_RU" + "&type=biz"
+                + "&ll=49.12214,55.78874"
                 + "&spn=0.552069,0.400552";
         return query;
     }

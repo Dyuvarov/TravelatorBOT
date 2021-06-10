@@ -23,7 +23,7 @@ public class TravelatorBot extends TelegramLongPollingBot {
     @Autowired
     public TravelatorBot(@Value("${bot.userName}") String botUserName,
                          @Value("${bot.token}") String botToken,
-                         BotDAO botDAO, @Qualifier("yandexAPI")MapsAPI mapsAPI) {
+                         BotDAO botDAO, @Qualifier("twoGisAPI")MapsAPI mapsAPI) {
         this.botUserName = botUserName;
         this.botToken = botToken;
         this.botDAO = botDAO;

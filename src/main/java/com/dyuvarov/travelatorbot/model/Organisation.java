@@ -1,25 +1,31 @@
 package com.dyuvarov.travelatorbot.model;
 
-public abstract class Organisation {
-    String name;
-    String uri;
-    Integer averageCost;
+import java.util.List;
 
-    public Organisation(String name, String uri, Integer averageCost) {
+public abstract class Organisation {
+    private String name;
+    private Integer cost;
+
+    public Organisation() {}
+
+    public Organisation(String name, Integer cost) {
         this.name = name;
-        this.uri = uri;
-        this.averageCost = averageCost;
+        this.cost = cost;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getUri() {
-        return uri;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Integer getAverageCost() {
-        return averageCost;
+    public Integer getCost() {
+        return cost;
+    }
+
+    public void setCost(Integer cost) {
+        this.cost = cost;
     }
 }
