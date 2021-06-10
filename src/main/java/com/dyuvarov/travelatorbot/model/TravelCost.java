@@ -4,47 +4,61 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TravelCost {
-    Integer averagePrice;
-    List<Organisation> economyList;
-    List<Organisation> averageList;
-    List<Organisation> premiumList;
+    Integer         minPrice;
+    Integer         maxPrice;
+    Float           averagePrice;
+    Organisation    economy;
+    Organisation    premium;
 
     public TravelCost() {
-        averagePrice = 0;
-        economyList = new ArrayList<>();
-        averageList = new ArrayList<>();
-        premiumList = new ArrayList<>();
+        averagePrice = 0.0f;
+        maxPrice = 0;
+        minPrice = 0;
     }
 
-    public Integer getAveragePrice() {
+    public String createMsg() {
+        return "Эконом сегмент: \"" + economy.getName() + "\"" + minPrice + "руб. \n"
+                + "Премиум сегмент: \"" + premium.getName() + "\"" + maxPrice + "руб. \n"
+                + "Средний чек по всем заведениям: " + averagePrice;
+    }
+
+    public Float getAveragePrice() {
         return averagePrice;
     }
 
-    public void setAveragePrice(Integer averagePrice) {
+    public void setAveragePrice(Float averagePrice) {
         this.averagePrice = averagePrice;
     }
 
-    public List<Organisation> getEconomyList() {
-        return economyList;
+    public Integer getMinPrice() {
+        return minPrice;
     }
 
-    public void setEconomyList(List<Organisation> economyList) {
-        this.economyList = economyList;
+    public void setMinPrice(Integer minPrice) {
+        this.minPrice = minPrice;
     }
 
-    public List<Organisation> getAverageList() {
-        return averageList;
+    public Integer getMaxPrice() {
+        return maxPrice;
     }
 
-    public void setAverageList(List<Organisation> averageList) {
-        this.averageList = averageList;
+    public void setMaxPrice(Integer maxPrice) {
+        this.maxPrice = maxPrice;
     }
 
-    public List<Organisation> getPremiumList() {
-        return premiumList;
+    public Organisation getEconomy() {
+        return economy;
     }
 
-    public void setPremiumList(List<Organisation> premiumList) {
-        this.premiumList = premiumList;
+    public void setEconomy(Organisation economy) {
+        this.economy = economy;
+    }
+
+    public Organisation getPremium() {
+        return premium;
+    }
+
+    public void setPremium(Organisation premium) {
+        this.premium = premium;
     }
 }

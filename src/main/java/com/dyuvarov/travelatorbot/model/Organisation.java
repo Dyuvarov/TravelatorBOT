@@ -1,5 +1,6 @@
 package com.dyuvarov.travelatorbot.model;
 
+import java.lang.annotation.Inherited;
 import java.util.List;
 
 public abstract class Organisation {
@@ -27,5 +28,20 @@ public abstract class Organisation {
 
     public void setCost(Integer cost) {
         this.cost = cost;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if ((obj == null) || (obj.getClass() != this.getClass()))
+            return false;
+        Organisation comp = (Organisation)obj;
+        return comp.name.equals(this.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return (name.hashCode() * (cost + 19));
     }
 }

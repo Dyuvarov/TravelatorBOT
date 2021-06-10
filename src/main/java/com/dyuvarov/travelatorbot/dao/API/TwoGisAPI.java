@@ -6,15 +6,15 @@ import com.dyuvarov.travelatorbot.model.TravelCost;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.tools.corba.se.idl.constExpr.Or;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cglib.transform.impl.AddStaticInitTransformer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,8 +38,40 @@ public class TwoGisAPI implements MapsAPI{
     public TravelCost calculateEating(String city) {
         TravelCost travelCost= new TravelCost();
         QueryResult queryResult = askAPI("общественное питание," + city);
+        if (queryResult == null)
+            return null;
+        Set<Catering> caterings = createCateringSet(queryResult);
+        if (caterings.isEmpty())
+            return null;
+        Catering anyCatering = caterings.stream().findAny().get();
+        int minCost = anyCatering.getCost();
+        Organisation minCostCatering = anyCatering;
+        int maxCost = anyCatering.getCost();
+        Organisation maxCostCatering = anyCatering;
+        int totalSum = 0;
+        for (Catering catering : caterings) {
+            int currentCost = catering.getCost();
+            if (currentCost < minCost){
+                minCost = currentCost;
+                minCostCatering = catering;
+            }
+            else if (currentCost > maxCost) {
+                maxCost = currentCost;
+                maxCostCatering = catering;
+            }
+            totalSum+=currentCost;
+        }
+        travelCost.setEconomy(minCostCatering);
+        travelCost.setMinPrice(minCost);
+        travelCost.setPremium(maxCostCatering);
+        travelCost.setMaxPrice(maxCost);
+        travelCost.setAveragePrice((float)totalSum / caterings.size());
+        return travelCost;
+    }
 
-        List<Catering> caterings = new LinkedList<>();
+    private Set<Catering> createCateringSet(QueryResult queryResult) {
+        Set<Catering> caterings = new HashSet<>();
+
         for (Item item : queryResult.getResult().getItems()) {
             String name = item.getName();
             for (StopFactor stopFactor : item.getContext().getStop_factors()) {
@@ -55,7 +87,7 @@ public class TwoGisAPI implements MapsAPI{
                 }
             }
         }
-        return travelCost;
+        return caterings;
     }
 
     private QueryResult askAPI(String text) {
@@ -66,9 +98,9 @@ public class TwoGisAPI implements MapsAPI{
         return (deserializeJson(jsonAnswer));
     }
 
-    private String createQuery(String city, String text) {
+    private String createQuery(String text) {
         String query = URL + "?key=" + APIKEY + "&q=" + text + "&locale=ru_RU" + "&type=branch"
-                + "&fields=items.context" + "&page_size=20";
+                + "&fields=items.context";
         return query;
     }
 
@@ -88,17 +120,16 @@ public class TwoGisAPI implements MapsAPI{
         return queryResult;
     }
 
-    private String testQueryResult() {
-        return "{\"meta\":{\"api_version\":\"3.0.606536\",\"code\":200,\"issue_date\":\"20210610\"}," +
-                "\"result\":" +
-                "   {\"items\":" +
-                    "[{\"address_comment\":\"1 этаж\",\"address_name\":\"Чистопольская, 33в\",\"ads\":{\"article\":" +
-                    "\"\"," +
-                    "\"article_warning\":\" ООО «Бургер Рус», г. Москва, ОГРН 1097746274009.\"," +
-                    "\"link\":{\"text\":\"А еще — доставка\",\"value\":\"http://link.2gis.ru/1.2/40AF06A5/webapi/20210601/project21/70000001026609205/2gis.ru/dly7py08566H4H8301IG23GG6eluz746G6G9537626870C31fcqpB66865G32G6G1J197J2JD9hEuv1926341013346H1J4HHHGJ272?https://burgerking.ru/delivery#\"}," +
-                    "\"text\":\"Попробуй новый мексиканский гамбургер + 5 блюд всего за 200 рублей!\",\"text_warning\":\"0+.\",\"warning\":\" ООО «Бургер Рус», г. Москва, ОГРН 1097746274009.\"}," +
-                    "\"context\":{\"stop_factors\":[{\"name\":\"Средний чек 300 ₽\"},{\"name\":\"Доставка\"}]},\"id\":\"70000001026609205\",\"name\":\"Бургер Кинг, сеть ресторанов быстрого питания\",\"type\":\"branch\"}]," +
-                "\"total\":2223}}";
+    private String testQueryResult(){
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream("/Users/ugreyiro/JavaProj/TravelatorBOT/answ");
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            return reader.readLine();
+        }
+        catch (IOException e) {
+            return null;
+        }
     }//TODO: deleteme
 }
 
@@ -285,8 +316,25 @@ class Item {
     private Ad      ads;
     private String  id;
     private String  name;
+    private String  full_name;
     private String  type;
+    private String  propertyName;
 
+    public String getPropertyName() {
+        return propertyName;
+    }
+
+    public void setPropertyName(String propertyName) {
+        this.propertyName = propertyName;
+    }
+
+    public String getFull_name() {
+        return full_name;
+    }
+
+    public void setFull_name(String full_name) {
+        this.full_name = full_name;
+    }
 
     public Context getContext() {
         return context;

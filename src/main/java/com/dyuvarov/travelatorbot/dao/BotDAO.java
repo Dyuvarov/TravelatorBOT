@@ -20,6 +20,7 @@ public class BotDAO {
         User user = users.stream().filter(x -> x.getChatId().equals(chatId)).findAny().orElse(null);
         if (user == null) {
             user = new User(message.getFrom().getUserName(), chatId);
+            users.add(user);
         }
         return user;
     }

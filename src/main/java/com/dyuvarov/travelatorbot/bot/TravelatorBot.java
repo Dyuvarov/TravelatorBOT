@@ -2,6 +2,7 @@ package com.dyuvarov.travelatorbot.bot;
 
 import com.dyuvarov.travelatorbot.dao.BotDAO;
 import com.dyuvarov.travelatorbot.dao.API.MapsAPI;
+import com.dyuvarov.travelatorbot.model.TravelCost;
 import com.dyuvarov.travelatorbot.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,14 +45,17 @@ public class TravelatorBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
         User user = botDAO.getUser(message);
-        mapsAPI.calculateEating(null);
-        switch (message.getText()){
-            case ("/start"): {
-                sendMessageToUser(user, "Привет! Я помогу тебе составить бюджет твоего путешествия!");
-                sendMessageToUser(user, "В какой город направимся?");
-                user.setState(BotState.WAITING_DESTINATION);
-                break;
+        if (message.getText().equals("/start")){
+            sendMessageToUser(user, "Привет! Я помогу тебе составить бюджет твоего путешествия!");
+            sendMessageToUser(user, "В какой город направимся?");
+            user.setState(BotState.WAITING_DESTINATION);
+        }
+        else {
+            if (user.getState() == BotState.WAITING_DESTINATION){
+                TravelCost catering = mapsAPI.calculateEating(message.getText());
+                sendMessageToUser(user, catering.createMsg());
             }
+
         }
     }
 
