@@ -132,7 +132,7 @@ public class TravelatorBot extends TelegramLongPollingBot {
             travelatorUser = new TravelatorUser(update.getCallbackQuery().getFrom(), update.getCallbackQuery().getMessage().getChatId());
             botDAO.addUser(travelatorUser);
         }
-        sendMessageToUser(travelatorUser, "Функция в разработке", false);
+        sendMessageToUser(travelatorUser, "Функция в разработке", null);
         return ;
     }
 }
