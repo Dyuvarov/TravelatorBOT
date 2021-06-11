@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -121,15 +118,21 @@ public class TwoGisAPI implements MapsAPI{
     }
 
     private String testQueryResult(){
-        ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("/Users/ugreyiro/JavaProj/TravelatorBOT/answ");
+        String result = "";
+        char[] buf = new char[1024];
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            return reader.readLine();
-        }
-        catch (IOException e) {
+            FileReader reader = new FileReader("/Users/ugreyiro/JavaProj/TravelatorBOT/answ");
+            while (reader.read(buf) != -1)
+            {
+                result += new String(buf);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
             return null;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return result;
     }//TODO: deleteme
 }
 
@@ -319,6 +322,15 @@ class Item {
     private String  full_name;
     private String  type;
     private String  propertyName;
+    private String  purpose_name;
+
+    public String getPurpose_name() {
+        return purpose_name;
+    }
+
+    public void setPurpose_name(String purpose_name) {
+        this.purpose_name = purpose_name;
+    }
 
     public String getPropertyName() {
         return propertyName;
