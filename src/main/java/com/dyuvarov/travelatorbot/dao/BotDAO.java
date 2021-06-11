@@ -1,28 +1,28 @@
 package com.dyuvarov.travelatorbot.dao;
 
+import com.dyuvarov.travelatorbot.model.TravelatorUser;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.springframework.stereotype.Component;
-import com.dyuvarov.travelatorbot.model.User;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class BotDAO {
-    private List<User> users;
+    private List<TravelatorUser> travelatorUsers;
 
     public BotDAO () {
-        users = new ArrayList<>();
+        travelatorUsers = new ArrayList<>();
     }
 
-    public User getUser(Message message) {
-        String chatId = message.getChat().getId().toString();
-        User user = users.stream().filter(x -> x.getChatId().equals(chatId)).findAny().orElse(null);
-        if (user == null) {
-            user = new User(message.getFrom().getUserName(), chatId);
-            users.add(user);
-        }
-        return user;
+    public TravelatorUser getUser(Long chatId) {
+        TravelatorUser travelatorUser = travelatorUsers.stream().filter(x -> (x.getId().equals(chatId))).findAny().orElse(null);
+        return travelatorUser;
         //TODO: users in database
+    }
+
+    public void addUser(TravelatorUser user) {
+        travelatorUsers.add(user);
     }
 }
