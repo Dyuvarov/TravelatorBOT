@@ -23,5 +23,6 @@ public class BotDAO {
             users.add(user);
         }
         return user;
+        //TODO: users in database
     }
 }

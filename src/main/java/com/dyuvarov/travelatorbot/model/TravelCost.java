@@ -1,64 +1,42 @@
 package com.dyuvarov.travelatorbot.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-public class TravelCost {
-    Integer         minPrice;
-    Integer         maxPrice;
-    Float           averagePrice;
-    Organisation    economy;
-    Organisation    premium;
+public abstract class TravelCost {
+    Float               averagePrice;
+    Set<Organisation>   organisations;
 
     public TravelCost() {
+        organisations = new HashSet<>();
         averagePrice = 0.0f;
-        maxPrice = 0;
-        minPrice = 0;
     }
 
-    public String createMsg() {
-        return "Эконом сегмент: \"" + economy.getName() + "\"" + minPrice + "руб. \n"
-                + "Премиум сегмент: \"" + premium.getName() + "\"" + maxPrice + "руб. \n"
-                + "Средний чек по всем заведениям: " + averagePrice;
-    }
+    public abstract String createMsg(String city);
 
     public Float getAveragePrice() {
         return averagePrice;
     }
 
-    public void setAveragePrice(Float averagePrice) {
-        this.averagePrice = averagePrice;
+    public void calculateAvgPrice() {
+        if (organisations.isEmpty())
+            return;
+        int sum = 0;
+        for (Organisation org : organisations) {
+            sum += org.getCost();
+        }
+        averagePrice = (float)sum / organisations.size();
     }
 
-    public Integer getMinPrice() {
-        return minPrice;
+    public Set<Organisation> getOrganisations() {
+        return organisations;
     }
 
-    public void setMinPrice(Integer minPrice) {
-        this.minPrice = minPrice;
+    public void addOrganisation(Organisation organisation) {
+        if (organisation != null)
+            organisations.add(organisation);
     }
 
-    public Integer getMaxPrice() {
-        return maxPrice;
-    }
-
-    public void setMaxPrice(Integer maxPrice) {
-        this.maxPrice = maxPrice;
-    }
-
-    public Organisation getEconomy() {
-        return economy;
-    }
-
-    public void setEconomy(Organisation economy) {
-        this.economy = economy;
-    }
-
-    public Organisation getPremium() {
-        return premium;
-    }
-
-    public void setPremium(Organisation premium) {
-        this.premium = premium;
+    public void addOrganisation(Set<Organisation> organisations) {
+        this.organisations.addAll(organisations);
     }
 }

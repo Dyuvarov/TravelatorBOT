@@ -45,7 +45,24 @@ public class TravelatorBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
         User user = botDAO.getUser(message);
-        TravelCost catering = mapsAPI.calculateEating(message.getText());
+        String city = message.getText();
+
+        TravelCost cateringCost = mapsAPI.calculateEating(city);
+        if (cateringCost == null)
+        {
+            sendMessageToUser(user, "Информация о зведениях общественного питания не найдена, " +
+                    "проверьте корректность введенных данных");
+        }
+        sendMessageToUser(user, cateringCost.createMsg(city));
+
+        TravelCost hotelCost = mapsAPI.calculateLiving(city);
+        if (hotelCost == null)
+        {
+            sendMessageToUser(user, "Информация о зведениях общественного питания не найдена, " +
+                    "проверьте корректность введенных данных");
+            return;
+        }
+        sendMessageToUser(user, hotelCost.createMsg(city));
 //        if (message.getText().equals("/start")){
 //            sendMessageToUser(user, "Привет! Я помогу тебе составить бюджет твоего путешествия!");
 //            sendMessageToUser(user, "В какой город направимся?");

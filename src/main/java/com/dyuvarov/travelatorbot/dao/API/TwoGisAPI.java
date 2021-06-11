@@ -1,8 +1,7 @@
 package com.dyuvarov.travelatorbot.dao.API;
 
-import com.dyuvarov.travelatorbot.model.Catering;
-import com.dyuvarov.travelatorbot.model.Organisation;
-import com.dyuvarov.travelatorbot.model.TravelCost;
+import com.dyuvarov.travelatorbot.bot.TravelatorBot;
+import com.dyuvarov.travelatorbot.model.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,91 +16,114 @@ import java.util.regex.Pattern;
 
 @Component
 public class TwoGisAPI implements MapsAPI{
-    final String URL;
-    final String APIKEY;
+    final String    URL;
+    final String    APIKEY;
+    final Integer   MAX_PAGE;
+    final String    HOTEL_FACTOR;
+    final String    CATERING_FACTOR;
+    final String    HOTEL_QUERY;
+    final String    CATERING_QUERY;
 
-
-    TwoGisAPI(@Value("${api.url}") String url, @Value("${api.apikey}") String apikey) {
+    TwoGisAPI(  @Value("${api.url}") String url,
+                @Value("${api.apikey}") String apikey,
+                @Value("${api.maxPage}") Integer maxPage)
+    {
         this.URL = url;
         this.APIKEY = apikey;
+        this.MAX_PAGE = maxPage;
+        this.HOTEL_FACTOR = "Проживание от";
+        this.CATERING_FACTOR = "Средний чек";
+        this.HOTEL_QUERY = "отель,";
+        this.CATERING_QUERY = "общественное питание,";
     }
 
     @Override
     public TravelCost calculateLiving(String city) {
-        return null;
+        return (calculateTravelPart(city, HOTEL_FACTOR, HOTEL_QUERY));
     }
 
     @Override
     public TravelCost calculateEating(String city) {
-        TravelCost travelCost= new TravelCost();
-        QueryResult queryResult = askAPI("общественное питание," + city);
-        if (queryResult == null)
+       return(calculateTravelPart(city, CATERING_FACTOR, CATERING_QUERY));
+    }
+
+    private TravelCost calculateTravelPart(String city, String factor, String query) {
+        TravelCost travelCost;
+        if (query.equals(HOTEL_QUERY))
+           travelCost = new HotelCost();
+        else if (query.equals(CATERING_QUERY))
+            travelCost = new CateringCost();
+        else
             return null;
-        Set<Catering> caterings = createCateringSet(queryResult);
-        if (caterings.isEmpty())
-            return null;
-        Catering anyCatering = caterings.stream().findAny().get();
-        int minCost = anyCatering.getCost();
-        Organisation minCostCatering = anyCatering;
-        int maxCost = anyCatering.getCost();
-        Organisation maxCostCatering = anyCatering;
-        int totalSum = 0;
-        for (Catering catering : caterings) {
-            int currentCost = catering.getCost();
-            if (currentCost < minCost){
-                minCost = currentCost;
-                minCostCatering = catering;
+
+        int page = 1;
+        while (travelCost.getOrganisations().size() < 20 && page <= MAX_PAGE) { //TODO increase page count
+            QueryResult queryResult = askAPI(query + city, page);
+            if (queryResult == null) {
+                ++page;
+                continue;
             }
-            else if (currentCost > maxCost) {
-                maxCost = currentCost;
-                maxCostCatering = catering;
-            }
-            totalSum+=currentCost;
+            Set<Organisation> caterings = createOrganisationsSet(queryResult, factor);
+            travelCost.addOrganisation(caterings);
+            ++page;
         }
-        travelCost.setEconomy(minCostCatering);
-        travelCost.setMinPrice(minCost);
-        travelCost.setPremium(maxCostCatering);
-        travelCost.setMaxPrice(maxCost);
-        travelCost.setAveragePrice((float)totalSum / caterings.size());
+        if (travelCost.getOrganisations().isEmpty())
+            return null;
+        travelCost.calculateAvgPrice();
+        //TODO: add data in database
         return travelCost;
     }
 
-    private Set<Catering> createCateringSet(QueryResult queryResult) {
-        Set<Catering> caterings = new HashSet<>();
-
+    private Set<Organisation> createOrganisationsSet(QueryResult queryResult, String factorName) {
+        Set<Organisation> orgSet = new HashSet<>();
+        if (queryResult.getResult() == null)
+            return orgSet;
         for (Item item : queryResult.getResult().getItems()) {
+            if (item == null || item.getContext() == null)
+                continue;
             String name = item.getName();
             for (StopFactor stopFactor : item.getContext().getStop_factors()) {
                 String factor = stopFactor.getName();
-                if (factor.contains("Средний чек")){
+                if (factor.contains(factorName)){
                     Pattern pattern = Pattern.compile("\\d+");
                     Matcher matcher = pattern.matcher(factor);
                     if (matcher.find()) {
                         String value = factor.substring(matcher.start(), matcher.end());
                         Integer cost = Integer.parseInt(value);
-                        caterings.add(new Catering(name, cost));
+                        if (factorName.equals(CATERING_FACTOR))
+                            orgSet.add(new Catering(name, cost));
+                        else if (factorName.equals(HOTEL_FACTOR))
+                            orgSet.add(new Hotel(name, cost));
                     }
                 }
             }
         }
-        return caterings;
+        return orgSet;
     }
 
-    private QueryResult askAPI(String text) {
+    private QueryResult askAPI(String text, int page) {
         RestTemplate restTemplate = new RestTemplate();
 
-        //String jsonAnswer = restTemplate.getForObject(createQuery(text),String.class);
-        String jsonAnswer = testQueryResult();
+        //String jsonAnswer = restTemplate.getForObject(createQuery(text, page),String.class);
+        if (page > 1) //TODO: delete it
+            return null;
+        String jsonAnswer = "";
+        if (text.contains(HOTEL_QUERY))
+            jsonAnswer  = testQueryResult("/Users/ugreyiro/JavaProj/TravelatorBOT/hotelAnsw");
+        else
+            jsonAnswer = testQueryResult("/Users/ugreyiro/JavaProj/TravelatorBOT/answ.txt");
         return (deserializeJson(jsonAnswer));
     }
 
-    private String createQuery(String text) {
-        String query = URL + "?key=" + APIKEY + "&q=" + text + "&locale=ru_RU" + "&type=branch"
-                + "&fields=items.context";
+    private String createQuery(String text, int page) {
+        String query = URL + "?key=" + APIKEY + "&q=" + text + "&page=" + page +
+                "&locale=ru_RU&type=branch&fields=items.context&search_type=one_branch";
         return query;
     }
 
     private QueryResult deserializeJson(String jsonAnswer) {
+        if ((jsonAnswer == null) || (!jsonAnswer.contains("\"code\":200")))
+            return null;
         ObjectMapper mapper = new ObjectMapper();
         QueryResult queryResult = null;
         try {
@@ -117,11 +139,12 @@ public class TwoGisAPI implements MapsAPI{
         return queryResult;
     }
 
-    private String testQueryResult(){
+    private String testQueryResult(String path){
         String result = "";
         char[] buf = new char[1024];
         try {
-            FileReader reader = new FileReader("/Users/ugreyiro/JavaProj/TravelatorBOT/answ");
+//            FileReader reader = new FileReader("/Users/ugreyiro/JavaProj/TravelatorBOT/answ.txt");
+            FileReader reader = new FileReader(path);
             while (reader.read(buf) != -1)
             {
                 result += new String(buf);
@@ -323,6 +346,15 @@ class Item {
     private String  type;
     private String  propertyName;
     private String  purpose_name;
+    private String  building_name;
+
+    public String getBuilding_name() {
+        return building_name;
+    }
+
+    public void setBuilding_name(String building_name) {
+        this.building_name = building_name;
+    }
 
     public String getPurpose_name() {
         return purpose_name;
