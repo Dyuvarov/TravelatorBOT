@@ -47,6 +47,13 @@ public class TwoGisAPI implements MapsAPI{
        return(calculateTravelPart(city, CATERING_FACTOR, CATERING_QUERY));
     }
 
+    /**
+     * find organisations and calculate average price
+     * @param city - name of city to search
+     * @param factor - string to find price
+     * @param query - query string to API
+     * @return TravelCost object
+     */
     private TravelCost calculateTravelPart(String city, String factor, String query) {
         TravelCost travelCost;
         if (query.equals(HOTEL_QUERY))
@@ -74,6 +81,12 @@ public class TwoGisAPI implements MapsAPI{
         return travelCost;
     }
 
+    /**
+     * Create set of organisations with not empty price
+     * @param queryResult - result of query to API
+     * @param factorName - string to find price
+     * @return Set of Hotel/Catering objects
+     */
     private Set<Organisation> createOrganisationsSet(QueryResult queryResult, String factorName) {
         Set<Organisation> orgSet = new HashSet<>();
         if (queryResult.getResult() == null)
@@ -101,6 +114,12 @@ public class TwoGisAPI implements MapsAPI{
         return orgSet;
     }
 
+    /**
+     * GET query to API
+     * @param text - query tex ("общественное питание"/"отель")
+     * @param page - number of page in answer
+     * @return QueryResult object
+     */
     private QueryResult askAPI(String text, int page) {
         RestTemplate restTemplate = new RestTemplate();
 
@@ -115,12 +134,23 @@ public class TwoGisAPI implements MapsAPI{
         return (deserializeJson(jsonAnswer));
     }
 
+    /**
+     * create full query string for API GET request
+     * @param text - query tex ("общественное питание"/"отель")
+     * @param page - number of page in answer
+     * @return url for GET
+     */
     private String createQuery(String text, int page) {
         String query = URL + "?key=" + APIKEY + "&q=" + text + "&page=" + page +
                 "&locale=ru_RU&type=branch&fields=items.context&search_type=one_branch";
         return query;
     }
 
+    /**
+     * Create QueryResult object from JSON string
+     * @param jsonAnswer - API JSON answer
+     * @return QueryResult object
+     */
     private QueryResult deserializeJson(String jsonAnswer) {
         if ((jsonAnswer == null) || (!jsonAnswer.contains("\"code\":200")))
             return null;

@@ -11,12 +11,16 @@ public abstract class TravelCost {
         averagePrice = 0.0f;
     }
 
+    /**
+     * Create anwser message for user
+     * @param city - name of city
+     * @return String message
+     */
     public abstract String createMsg(String city);
 
-    public Float getAveragePrice() {
-        return averagePrice;
-    }
-
+    /**
+     * Calculate average of all organisations prices
+     */
     public void calculateAvgPrice() {
         if (organisations.isEmpty())
             return;
@@ -25,6 +29,10 @@ public abstract class TravelCost {
             sum += org.getCost();
         }
         averagePrice = (float)sum / organisations.size();
+    }
+
+    public Float getAveragePrice() {
+        return averagePrice;
     }
 
     public Set<Organisation> getOrganisations() {
