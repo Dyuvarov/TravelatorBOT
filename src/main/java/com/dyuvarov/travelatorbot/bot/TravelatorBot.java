@@ -14,9 +14,15 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButtonPollType;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -61,38 +67,51 @@ public class TravelatorBot extends TelegramLongPollingBot {
                 travelatorUser = new TravelatorUser(message.getFrom(), message.getChatId());
                 botDAO.addUser(travelatorUser);
             }
-            String city = message.getText();
 
-            TravelCost cateringCost = mapsAPI.calculateEating(city);
-            if (cateringCost == null)
-                sendMessageToUser(travelatorUser, "Информация о зведениях общественного питания не найдена, " +
-                        "проверьте корректность введенных данных", null);
-            InlineKeyboardMarkup cateringMarkp = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId());
-            sendMessageToUser(travelatorUser, cateringCost.createMsg(city), cateringMarkp);
+            String msgText = message.getText();
+            if (msgText.equals(BotCommands.CALCULATE.getTitle())) {
+                sendMessageToUser(travelatorUser, BotMessages.getCalculateCommandMessage(), null);
+                travelatorUser.setState(BotState.WAITING_DESTINATION);
+            }
+            else if (msgText.equals(BotCommands.START.getTitle())){
+                sendMessageToUser(travelatorUser, BotMessages.getWelcomeMessage(), createMainMenu());
+                travelatorUser.setState(BotState.NO_ACTION);
+            }
+            else if (msgText.equals(BotCommands.HELP.getTitle())) {
+                sendMessageToUser(travelatorUser, BotMessages.getHelpCommandMessage(), null);
+                travelatorUser.setState(BotState.NO_ACTION);
+            }
+            else if (msgText.equals(BotCommands.INFO.getTitle())) {
+                sendMessageToUser(travelatorUser, BotMessages.getInfoCommandMessage(), null);
+                travelatorUser.setState(BotState.NO_ACTION);
+            }
+            else if (travelatorUser.getState() == BotState.WAITING_DESTINATION) {
+                String city = msgText;
 
-            TravelCost hotelCost = mapsAPI.calculateLiving(city);
-            if (hotelCost == null)
-                sendMessageToUser(travelatorUser, "Информация о зведениях общественного питания не найдена, " +
-                        "проверьте корректность введенных данных", null);
-            InlineKeyboardMarkup hotelMarkup = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId());
-            sendMessageToUser(travelatorUser, hotelCost.createMsg(city), hotelMarkup);
+                TravelCost cateringCost = mapsAPI.calculateEating(city);
+                if (cateringCost == null)
+                    sendMessageToUser(travelatorUser, "Информация о зведениях общественного питания не найдена, " +
+                            "проверьте корректность введенных данных", null);
+                else {
+                    InlineKeyboardMarkup cateringMarkp = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId());
+                    sendMessageToUser(travelatorUser, cateringCost.createMsg(city), cateringMarkp);
+                }
 
-//        if (message. ().equals("/start")){
-//            sendMessageToUser(user, "Привет! Я помогу тебе составить бюджет твоего путешествия!");
-//            sendMessageToUser(user, "В какой город направимся?");
-//            user.setState(BotState.WAITING_DESTINATION);
-//        }
-//        else {
-//            if (user.getState() == BotState.WAITING_DESTINATION){
-//                TravelCost catering = mapsAPI.calculateEating(message.getText());
-//                sendMessageToUser(user, catering.createMsg());
-//            }
-//
-//        }
+                TravelCost hotelCost = mapsAPI.calculateLiving(city);
+                if (hotelCost == null)
+                    sendMessageToUser(travelatorUser, "Информация о зведениях общественного питания не найдена, " +
+                            "проверьте корректность введенных данных", null);
+                else {
+                    InlineKeyboardMarkup hotelMarkup = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId());
+                    sendMessageToUser(travelatorUser, hotelCost.createMsg(city), hotelMarkup);
+                }
+
+                travelatorUser.setState(BotState.NO_ACTION);
+            }
         }
     }
 
-    private void sendMessageToUser(TravelatorUser travelatorUser, String message, InlineKeyboardMarkup markup) {
+    private void sendMessageToUser(TravelatorUser travelatorUser, String message, ReplyKeyboard markup) {
         SendMessage sendMessage = new SendMessage(travelatorUser.getChatId().toString(), message);
         if (markup != null)
             sendMessage.setReplyMarkup(markup);
@@ -122,6 +141,22 @@ public class TravelatorBot extends TelegramLongPollingBot {
 
         markup.setKeyboard(rowList);
         return markup;
+    }
+
+    private ReplyKeyboardMarkup  createMainMenu() {
+        final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+
+        //one button per row
+        KeyboardRow rowCalculate = new KeyboardRow();
+        KeyboardRow rowHelp = new KeyboardRow();
+        KeyboardRow rowInfo = new KeyboardRow();
+        rowCalculate.add(new KeyboardButton("Узнать цены"));
+        rowHelp.add(new KeyboardButton("Помощь"));
+        rowInfo.add(new KeyboardButton("Информация"));
+
+        final ArrayList<KeyboardRow> keyboard = new ArrayList<>(Arrays.asList(rowCalculate, rowHelp, rowInfo));
+        replyKeyboardMarkup.setKeyboard(keyboard);;
+        return replyKeyboardMarkup;
     }
 
     private void handleCallbackQuery(Update update) {
