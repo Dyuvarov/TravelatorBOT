@@ -27,17 +27,18 @@ public class BotDAO {
     }
 
     public TravelatorUser getUser(Long chatId) {
-        ResultSet resultSet = null;
         TravelatorUser travelatorUser = null;
         try {
             PreparedStatement statement = dbConnection.prepareStatement("SELECT * FROM Users WHERE chatid=?");
             statement.setString(1, chatId.toString());
-            resultSet = statement.executeQuery();
-            resultSet.next();
-            travelatorUser = new TravelatorUser(resultSet.getString("username"),
-                                                resultSet.getString("chatid"),
-                                                resultSet.getString("state"),
-                                                resultSet.getString("id"));
+            ResultSet resultSet = statement.executeQuery();
+            boolean hasNext = resultSet.next();
+            if (hasNext) {
+                travelatorUser = new TravelatorUser(resultSet.getString("username"),
+                        resultSet.getString("chatid"),
+                        resultSet.getString("state"),
+                        resultSet.getString("id"));
+            }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
