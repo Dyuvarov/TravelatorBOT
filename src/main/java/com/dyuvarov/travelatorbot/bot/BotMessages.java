@@ -19,4 +19,9 @@ public class BotMessages {
     public static  String getInfoCommandMessage() {
         return "Travelator - учебный проект от @dyvuarov.\n Данные о ценах и заведениях предоставлены компанией 2GIS";
     }
+
+    public static String getInformationNotFoundMessage() {
+        return "Информация о зведениях общественного питания не найдена, " +
+                "проверьте корректность введенных данных";
+    }
 }

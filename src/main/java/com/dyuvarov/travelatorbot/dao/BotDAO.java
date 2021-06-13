@@ -1,28 +1,60 @@
 package com.dyuvarov.travelatorbot.dao;
 
 import com.dyuvarov.travelatorbot.model.TravelatorUser;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
 
 @Component
 public class BotDAO {
-    private List<TravelatorUser> travelatorUsers;
 
-    public BotDAO () {
-        travelatorUsers = new ArrayList<>();
+    private Connection dbConnection;
+
+    public BotDAO (@Value("${db.url}") String dbUrl, @Value("${db.username}") String dbUserName,
+                   @Value("${db.password}") String dbPassword) {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            this.dbConnection = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     public TravelatorUser getUser(Long chatId) {
-        TravelatorUser travelatorUser = travelatorUsers.stream().filter(x -> (x.getId().equals(chatId))).findAny().orElse(null);
-        return travelatorUser;
-        //TODO: users in database
+        ResultSet resultSet = null;
+        TravelatorUser travelatorUser = null;
+        try {
+            PreparedStatement statement = dbConnection.prepareStatement("SELECT * FROM Users WHERE chatid=?");
+            statement.setString(1, chatId.toString());
+            resultSet = statement.executeQuery();
+            resultSet.next();
+            travelatorUser = new TravelatorUser(resultSet.getString("username"),
+                                                resultSet.getString("chatid"),
+                                                resultSet.getString("state"),
+                                                resultSet.getString("id"));
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return  travelatorUser;
     }
 
     public void addUser(TravelatorUser user) {
-        travelatorUsers.add(user);
+        try {
+            PreparedStatement statement =
+                    dbConnection.prepareStatement("INSERT INTO Users VALUES( ?, ?, ?, ?)");
+            statement.setString(1, user.getUserName());
+            statement.setString(2, user.getChatId().toString());
+            statement.setString(3, user.getState().getTitle());
+            statement.setString(4, user.getId().toString());
+            statement.executeUpdate();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 }

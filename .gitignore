@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 hotelAnsw
 answ.txt
+.DS_STORE
 
 ### IntelliJ IDEA ###
 .idea

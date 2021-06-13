@@ -90,8 +90,7 @@ public class TravelatorBot extends TelegramLongPollingBot {
 
                 TravelCost cateringCost = mapsAPI.calculateEating(city);
                 if (cateringCost == null)
-                    sendMessageToUser(travelatorUser, "Информация о зведениях общественного питания не найдена, " +
-                            "проверьте корректность введенных данных", null);
+                    sendMessageToUser(travelatorUser, BotMessages.getInfoCommandMessage(), null);
                 else {
                     InlineKeyboardMarkup cateringMarkp = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId());
                     sendMessageToUser(travelatorUser, cateringCost.createMsg(city), cateringMarkp);
@@ -99,8 +98,7 @@ public class TravelatorBot extends TelegramLongPollingBot {
 
                 TravelCost hotelCost = mapsAPI.calculateLiving(city);
                 if (hotelCost == null)
-                    sendMessageToUser(travelatorUser, "Информация о зведениях общественного питания не найдена, " +
-                            "проверьте корректность введенных данных", null);
+                    sendMessageToUser(travelatorUser, BotMessages.getInfoCommandMessage(), null);
                 else {
                     InlineKeyboardMarkup hotelMarkup = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId());
                     sendMessageToUser(travelatorUser, hotelCost.createMsg(city), hotelMarkup);
