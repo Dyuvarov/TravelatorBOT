@@ -3,7 +3,7 @@ package com.dyuvarov.travelatorbot.bot;
 import com.dyuvarov.travelatorbot.dao.BotDAO;
 import com.dyuvarov.travelatorbot.dao.API.MapsAPI;
 import com.dyuvarov.travelatorbot.model.TravelCost;
-import com.dyuvarov.travelatorbot.model.TravelatorUser;
+import com.dyuvarov.travelatorbot.entity.TravelatorUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,11 +18,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButtonPollType;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -68,22 +66,22 @@ public class TravelatorBot extends TelegramLongPollingBot {
                 botDAO.addUser(travelatorUser);
             }
 
-            String msgText = message.getText();
+             String msgText = message.getText();
             if (msgText.equals(BotCommands.CALCULATE.getTitle())) {
                 sendMessageToUser(travelatorUser, BotMessages.getCalculateCommandMessage(), null);
-                travelatorUser.setState(BotState.WAITING_DESTINATION);
+                botDAO.updateUsersState(travelatorUser, BotState.WAITING_DESTINATION);
             }
             else if (msgText.equals(BotCommands.START.getTitle())){
                 sendMessageToUser(travelatorUser, BotMessages.getWelcomeMessage(), createMainMenu());
-                travelatorUser.setState(BotState.NO_ACTION);
+                botDAO.updateUsersState(travelatorUser, BotState.NO_ACTION);
             }
             else if (msgText.equals(BotCommands.HELP.getTitle())) {
                 sendMessageToUser(travelatorUser, BotMessages.getHelpCommandMessage(), null);
-                travelatorUser.setState(BotState.NO_ACTION);
+                botDAO.updateUsersState(travelatorUser, BotState.NO_ACTION);
             }
             else if (msgText.equals(BotCommands.INFO.getTitle())) {
                 sendMessageToUser(travelatorUser, BotMessages.getInfoCommandMessage(), null);
-                travelatorUser.setState(BotState.NO_ACTION);
+                botDAO.updateUsersState(travelatorUser, BotState.NO_ACTION);
             }
             else if (travelatorUser.getState() == BotState.WAITING_DESTINATION) {
                 String city = msgText;
@@ -103,8 +101,7 @@ public class TravelatorBot extends TelegramLongPollingBot {
                     InlineKeyboardMarkup hotelMarkup = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId());
                     sendMessageToUser(travelatorUser, hotelCost.createMsg(city), hotelMarkup);
                 }
-
-                travelatorUser.setState(BotState.NO_ACTION);
+                botDAO.updateUsersState(travelatorUser, BotState.NO_ACTION);
             }
         }
     }
