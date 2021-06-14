@@ -1,5 +1,9 @@
 package com.dyuvarov.travelatorbot.bot;
 
+import com.dyuvarov.travelatorbot.model.Organisation;
+
+import java.util.List;
+
 public class BotMessages {
     public static String getWelcomeMessage() {
         return "Привет! Я помогу тебе составить бюджет путешествия! Я знаю о заведениях общественного питания и " +
@@ -21,7 +25,20 @@ public class BotMessages {
     }
 
     public static String getInformationNotFoundMessage() {
-        return "Информация о зведениях общественного питания не найдена, " +
+        return "Информация не найдена, " +
                 "проверьте корректность введенных данных";
+    }
+
+    public static String getNoDataInDataBaseMessage() {
+        return "Не удалось найти информацию по запросу";
+    }
+
+    public static String getOrganisationsMessage(List<Organisation> organisations) {
+        String result = "";
+        for (Organisation organisation : organisations) {
+            result += "[\"" + organisation.getName() + "\"](" + organisation.getUrl() + ")" + ": " +
+                    organisation.getCost() + " руб.\n";
+        }
+        return result;
     }
 }

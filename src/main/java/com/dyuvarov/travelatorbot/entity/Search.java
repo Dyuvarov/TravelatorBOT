@@ -16,13 +16,27 @@ public class Search {
     private String      organisationName;
     private Integer     cost;
     private Long        chatId;
-    private Long        messageId;
+    private Integer     messageId;
     private BudgetType  budgetType;
+    private String      url;
 
     public Search() {}
 
-    Search(Organisation organisation, BudgetType budgetType) {
-        //TODO: this constructor
+    public Search(Organisation organisation, BudgetType budgetType, Long chatId, Integer messageId) {
+        this.organisationName = organisation.getName();
+        this.cost = organisation.getCost();
+        this.url = organisation.getUrl();
+        this.budgetType = budgetType;
+        this.chatId = chatId;
+        this.messageId = messageId;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public Long getId() {
@@ -57,11 +71,11 @@ public class Search {
         this.chatId = chatId;
     }
 
-    public Long getMessageId() {
+    public Integer getMessageId() {
         return messageId;
     }
 
-    public void setMessageId(Long messageId) {
+    public void setMessageId(Integer messageId) {
         this.messageId = messageId;
     }
 

@@ -95,6 +95,7 @@ public class TwoGisAPI implements MapsAPI{
             if (item == null || item.getContext() == null)
                 continue;
             String name = item.getName();
+            String url = findItemUrl(item);
             for (StopFactor stopFactor : item.getContext().getStop_factors()) {
                 String factor = stopFactor.getName();
                 if (factor.contains(factorName)){
@@ -104,14 +105,42 @@ public class TwoGisAPI implements MapsAPI{
                         String value = factor.substring(matcher.start(), matcher.end());
                         Integer cost = Integer.parseInt(value);
                         if (factorName.equals(CATERING_FACTOR))
-                            orgSet.add(new Catering(name, cost));
+                        {
+                            orgSet.add(new Catering(name, cost, url));
+                            break ;
+                        }
                         else if (factorName.equals(HOTEL_FACTOR))
-                            orgSet.add(new Hotel(name, cost));
+                        {
+                            orgSet.add(new Hotel(name, cost, url));
+                            break ;
+                        }
                     }
                 }
             }
         }
         return orgSet;
+    }
+
+    private String findItemUrl(Item item) {
+        if (item == null)
+            return "";
+
+        Ad ad = item.getAds();
+        if (ad == null)
+            return "";
+
+        Link link = ad.getLink();
+        if (link == null)
+            return "";
+
+        String linkStr = link.getValue();
+        if (linkStr.isEmpty())
+            return "";
+        String spliter = "http";
+        String[] linkArr = linkStr.split(spliter);
+        if (linkArr.length > 1)
+            return spliter+linkArr[linkArr.length-1];
+        return "";
     }
 
     /**
@@ -128,7 +157,7 @@ public class TwoGisAPI implements MapsAPI{
             return null;
         String jsonAnswer = "";
         if (text.contains(HOTEL_QUERY))
-            jsonAnswer  = testQueryResult("/Users/ugreyiro/JavaProj/TravelatorBOT/hotelAnsw");
+            jsonAnswer  = testQueryResult("/Users/ugreyiro/JavaProj/TravelatorBOT/hotelAnsw2org");
         else
             jsonAnswer = testQueryResult("/Users/ugreyiro/JavaProj/TravelatorBOT/answ.txt");
         return (deserializeJson(jsonAnswer));

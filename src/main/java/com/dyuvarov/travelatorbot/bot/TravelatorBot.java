@@ -2,6 +2,8 @@ package com.dyuvarov.travelatorbot.bot;
 
 import com.dyuvarov.travelatorbot.dao.BotDAO;
 import com.dyuvarov.travelatorbot.dao.API.MapsAPI;
+import com.dyuvarov.travelatorbot.dao.CostType;
+import com.dyuvarov.travelatorbot.model.Organisation;
 import com.dyuvarov.travelatorbot.model.TravelCost;
 import com.dyuvarov.travelatorbot.entity.TravelatorUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,16 +92,26 @@ public class TravelatorBot extends TelegramLongPollingBot {
                 if (cateringCost == null)
                     sendMessageToUser(travelatorUser, BotMessages.getInfoCommandMessage(), null);
                 else {
-                    InlineKeyboardMarkup cateringMarkp = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId());
-                    sendMessageToUser(travelatorUser, cateringCost.createMsg(city), cateringMarkp);
+                    InlineKeyboardMarkup cateringMarkup = null;
+                    if (cateringCost.getOrganisations().size() < 6)
+                        cateringMarkup = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId(), true);
+                    else
+                        cateringMarkup = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId(), false);
+                    sendMessageToUser(travelatorUser, cateringCost.createMsg(city), cateringMarkup);
+                    botDAO.saveSearches(message.getMessageId(), travelatorUser.getChatId(), BudgetType.CATERING, cateringCost);
                 }
 
                 TravelCost hotelCost = mapsAPI.calculateLiving(city);
                 if (hotelCost == null)
                     sendMessageToUser(travelatorUser, BotMessages.getInfoCommandMessage(), null);
                 else {
-                    InlineKeyboardMarkup hotelMarkup = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId());
+                    InlineKeyboardMarkup hotelMarkup = null;
+                    if (hotelCost.getOrganisations().size() < 6)
+                        hotelMarkup = createInlineMessageButtons(BudgetType.HOTEL, message.getMessageId(), true);
+                    else
+                        hotelMarkup = createInlineMessageButtons(BudgetType.HOTEL, message.getMessageId(), false);
                     sendMessageToUser(travelatorUser, hotelCost.createMsg(city), hotelMarkup);
+                    botDAO.saveSearches(message.getMessageId(), travelatorUser.getChatId(), BudgetType.HOTEL, hotelCost);
                 }
                 botDAO.updateUsersState(travelatorUser, BotState.NO_ACTION);
             }
@@ -110,7 +122,6 @@ public class TravelatorBot extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage(travelatorUser.getChatId().toString(), message);
         if (markup != null)
             sendMessage.setReplyMarkup(markup);
-
         try {
             execute(sendMessage);
         }
@@ -119,20 +130,43 @@ public class TravelatorBot extends TelegramLongPollingBot {
         }
     }
 
-    private InlineKeyboardMarkup createInlineMessageButtons(BudgetType budgetType, Integer msgId) {
+    private void sendMessageToUserMarkdown(TravelatorUser travelatorUser, String message, ReplyKeyboard markup) {
+        SendMessage sendMessage = new SendMessage(travelatorUser.getChatId().toString(), message);
+        sendMessage.enableMarkdown(true);
+        if (markup != null)
+            sendMessage.setReplyMarkup(markup);
+        try {
+            execute(sendMessage);
+        }
+        catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private InlineKeyboardMarkup createInlineMessageButtons(BudgetType budgetType, Integer msgId, boolean oneButton) {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowList = null;
 
-        InlineKeyboardButton buttonEconomy = new InlineKeyboardButton();
-        buttonEconomy.setText("см. недорогие");
-        InlineKeyboardButton buttonPremium = new InlineKeyboardButton();
-        buttonPremium.setText("см. дорогие");
+        if (oneButton) {
+            InlineKeyboardButton buttonAll = new InlineKeyboardButton();
+            buttonAll.setText("см. примеры");
+            buttonAll.setCallbackData("All_" + budgetType.getTitle() + "_" + msgId.toString());
+            List<InlineKeyboardButton> row = new ArrayList<>(Arrays.asList(buttonAll));
+            rowList = new ArrayList<>(Arrays.asList(row));
+        }
+        else {
+            InlineKeyboardButton buttonEconomy = new InlineKeyboardButton();
+            buttonEconomy.setText("см. недорогие");
+            InlineKeyboardButton buttonPremium = new InlineKeyboardButton();
+            buttonPremium.setText("см. дорогие");
 
-        //add button identifiers to understand which button was used by user
-        buttonEconomy.setCallbackData("Cheep_" + budgetType.getTitle() + "_" + msgId.toString()); //TODO: add ID of search
-        buttonPremium.setCallbackData("Expensive_" + budgetType.getTitle() + "_" + msgId.toString()); //
+            //add button identifiers to understand which button was used by user
+            buttonEconomy.setCallbackData("Cheap_" + budgetType.getTitle() + "_" + msgId.toString());
+            buttonPremium.setCallbackData("Expensive_" + budgetType.getTitle() + "_" + msgId.toString());
 
-        List<InlineKeyboardButton> row = new ArrayList<>(Arrays.asList(buttonEconomy, buttonPremium));
-        List<List<InlineKeyboardButton>> rowList = new ArrayList<>(Arrays.asList(row));
+            List<InlineKeyboardButton> row = new ArrayList<>(Arrays.asList(buttonEconomy, buttonPremium));
+            rowList = new ArrayList<>(Arrays.asList(row));
+        }
 
         markup.setKeyboard(rowList);
         return markup;
@@ -162,7 +196,39 @@ public class TravelatorBot extends TelegramLongPollingBot {
             travelatorUser = new TravelatorUser(update.getCallbackQuery().getFrom(), update.getCallbackQuery().getMessage().getChatId());
             botDAO.addUser(travelatorUser);
         }
-        sendMessageToUser(travelatorUser, "Функция в разработке", null);
-        return ;
+        String[] data = callbackQuery.getData().split("_");
+        CostType costType = null;
+        BudgetType budgetType = null;
+        Integer msgId = null;
+        if (data[0].equals("Cheap"))
+            costType = CostType.CHEAP;
+        else if (data[0].equals("Expensive"))
+            costType = CostType.EXPENSIVE;
+        else  if (data[0].equals("All"))
+            costType = CostType.ALL;
+
+        if (data[1].equals(BudgetType.CATERING.getTitle()))
+            budgetType = BudgetType.CATERING;
+        else if (data[1].equals(BudgetType.HOTEL.getTitle()))
+            budgetType = BudgetType.HOTEL;
+
+        try {msgId = Integer.parseInt(data[2]);}
+        catch (NumberFormatException ex) { msgId = null;}
+
+        if (costType == null || budgetType == null || msgId == null) {
+            sendMessageToUser(travelatorUser, BotMessages.getNoDataInDataBaseMessage(), null);
+            return;
+        }
+
+        List<Organisation> organisations = botDAO.findOrganisationsInSearch(budgetType, travelatorUser.getChatId(),
+                msgId, costType);
+
+        if (organisations == null ||  organisations.isEmpty()) {
+            sendMessageToUser(travelatorUser, BotMessages.getNoDataInDataBaseMessage(), null);
+            return;
+        }
+
+        sendMessageToUserMarkdown(travelatorUser, BotMessages.getOrganisationsMessage(organisations), null);
     }
+
 }

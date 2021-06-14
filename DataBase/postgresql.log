@@ -19,3 +19,26 @@
 	    state varchar,
 	    id int
 	)
+2021-06-13 18:07:35.957 MSK [29563] LOG:  received fast shutdown request
+2021-06-13 18:07:35.958 MSK [29563] LOG:  aborting any active transactions
+2021-06-13 18:07:35.958 MSK [60128] FATAL:  terminating connection due to administrator command
+2021-06-13 18:07:35.958 MSK [31770] FATAL:  terminating connection due to administrator command
+2021-06-13 18:07:35.959 MSK [55476] FATAL:  terminating connection due to administrator command
+2021-06-13 18:07:35.959 MSK [54317] FATAL:  terminating connection due to administrator command
+2021-06-13 18:07:35.959 MSK [53434] FATAL:  terminating connection due to administrator command
+2021-06-13 18:07:35.959 MSK [54746] FATAL:  terminating connection due to administrator command
+2021-06-13 18:07:35.962 MSK [29563] LOG:  background worker "logical replication launcher" (PID 29570) exited with exit code 1
+2021-06-13 18:07:35.963 MSK [30183] FATAL:  terminating connection due to administrator command
+2021-06-13 18:07:35.963 MSK [30196] FATAL:  terminating connection due to administrator command
+2021-06-13 18:07:35.966 MSK [29565] LOG:  shutting down
+2021-06-13 18:07:35.975 MSK [29563] LOG:  database system is shut down
+2021-06-14 10:03:54.890 MSK [78527] LOG:  starting PostgreSQL 13.2 on x86_64-apple-darwin19.6.0, compiled by Apple clang version 11.0.3 (clang-1103.0.32.62), 64-bit
+2021-06-14 10:03:54.928 MSK [78527] LOG:  listening on IPv6 address "::1", port 5432
+2021-06-14 10:03:54.928 MSK [78527] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2021-06-14 10:03:54.946 MSK [78527] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5432"
+2021-06-14 10:03:55.289 MSK [78529] LOG:  database system was shut down at 2021-06-13 18:07:35 MSK
+2021-06-14 10:03:56.142 MSK [78527] LOG:  database system is ready to accept connections
+2021-06-14 13:47:26.638 MSK [22149] ERROR:  value too long for type character varying(255)
+2021-06-14 13:47:26.638 MSK [22149] STATEMENT:  insert into search (budget_type, chat_id, cost, message_id, organisation_name, url, id) values ($1, $2, $3, $4, $5, $6, $7)
+2021-06-14 13:49:27.341 MSK [22149] ERROR:  value too long for type character varying(255)
+2021-06-14 13:49:27.341 MSK [22149] STATEMENT:  insert into search (budget_type, chat_id, cost, message_id, organisation_name, url, id) values ($1, $2, $3, $4, $5, $6, $7)

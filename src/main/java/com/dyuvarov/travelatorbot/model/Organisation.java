@@ -6,12 +6,14 @@ import java.util.List;
 public abstract class Organisation {
     private String name;
     private Integer cost;
+    private String url;
 
     public Organisation() {}
 
-    public Organisation(String name, Integer cost) {
+    public Organisation(String name, Integer cost, String url) {
         this.name = name;
         this.cost = cost;
+        this.url = url;
     }
 
     public String getName() {
@@ -28,6 +30,14 @@ public abstract class Organisation {
 
     public void setCost(Integer cost) {
         this.cost = cost;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     @Override
