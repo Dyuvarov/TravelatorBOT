@@ -152,14 +152,17 @@ public class TwoGisAPI implements MapsAPI{
     private QueryResult askAPI(String text, int page) {
         RestTemplate restTemplate = new RestTemplate();
 
-        //String jsonAnswer = restTemplate.getForObject(createQuery(text, page),String.class);
-        if (page > 1) //TODO: delete it
-            return null;
-        String jsonAnswer = "";
-        if (text.contains(HOTEL_QUERY))
-            jsonAnswer  = testQueryResult("/Users/ugreyiro/JavaProj/TravelatorBOT/hotelAnsw2org");
-        else
-            jsonAnswer = testQueryResult("/Users/ugreyiro/JavaProj/TravelatorBOT/answ.txt");
+        String jsonAnswer = restTemplate.getForObject(createQuery(text, page),String.class);
+
+//        For tests:
+//        if (page > 1)
+//            return null;
+//        String jsonAnswer = "";
+//        if (text.contains(HOTEL_QUERY))
+//            jsonAnswer  = testQueryResult("/Users/ugreyiro/JavaProj/TravelatorBOT/hotelAnsw2org");
+//        else
+//            jsonAnswer = testQueryResult("/Users/ugreyiro/JavaProj/TravelatorBOT/answ.txt");
+
         return (deserializeJson(jsonAnswer));
     }
 
