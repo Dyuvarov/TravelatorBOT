@@ -1,8 +1,9 @@
 package com.dyuvarov.travelatorbot.model;
 
-import java.lang.annotation.Inherited;
-import java.util.List;
 
+/**
+ * Class for organisations which bot find and calculate
+ */
 public abstract class Organisation {
     private String name;
     private Integer cost;

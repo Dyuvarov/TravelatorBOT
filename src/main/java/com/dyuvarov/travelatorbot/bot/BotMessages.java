@@ -4,6 +4,10 @@ import com.dyuvarov.travelatorbot.model.Organisation;
 
 import java.util.List;
 
+
+/**
+ * generates messages for answers
+ */
 public class BotMessages {
     public static String getWelcomeMessage() {
         return "Привет! Я помогу тебе составить бюджет путешествия! Я знаю о заведениях общественного питания и " +
@@ -24,8 +28,13 @@ public class BotMessages {
         return "Travelator - учебный проект от @dyvuarov.\n Данные о ценах и заведениях предоставлены компанией 2GIS";
     }
 
-    public static String getInformationNotFoundMessage() {
-        return "Информация не найдена, " +
+    public static String getCateringInformationNotFoundMessage() {
+        return "Информация о заведениях общественного питания не найдена, " +
+                "проверьте корректность введенных данных";
+    }
+
+    public static String getHotelsInformationNotFoundMessage() {
+        return "Информация об отелях не найдена, " +
                 "проверьте корректность введенных данных";
     }
 

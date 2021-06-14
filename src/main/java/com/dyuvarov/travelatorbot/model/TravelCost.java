@@ -2,6 +2,10 @@ package com.dyuvarov.travelatorbot.model;
 
 import java.util.*;
 
+/**
+ * Class with List of organisations and average price
+ */
+
 public abstract class TravelCost {
     Integer               averagePrice;
     Set<Organisation>   organisations;

@@ -1,5 +1,8 @@
 package com.dyuvarov.travelatorbot.bot;
 
+/**
+ * Types of organisations to calculate average prices
+ */
 public enum BudgetType {
     HOTEL("Hotel"),
     CATERING("Catering");

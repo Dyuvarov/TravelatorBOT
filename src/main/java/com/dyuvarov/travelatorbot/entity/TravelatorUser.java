@@ -6,6 +6,9 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+/**
+ * class to store users in database
+ */
 @Entity
 public class TravelatorUser {
     @Id

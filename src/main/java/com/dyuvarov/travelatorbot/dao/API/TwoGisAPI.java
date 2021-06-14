@@ -1,6 +1,5 @@
 package com.dyuvarov.travelatorbot.dao.API;
 
-import com.dyuvarov.travelatorbot.bot.TravelatorBot;
 import com.dyuvarov.travelatorbot.model.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -13,6 +12,8 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.dyuvarov.travelatorbot.TravelatorBotApplication.LOGGER;
 
 @Component
 public class TwoGisAPI implements MapsAPI{
@@ -121,6 +122,11 @@ public class TwoGisAPI implements MapsAPI{
         return orgSet;
     }
 
+    /**
+     * Find organisation url in Item object
+     * @param item
+     * @return organisation url if it found, else empty string
+     */
     private String findItemUrl(Item item) {
         if (item == null)
             return "";
@@ -192,15 +198,14 @@ public class TwoGisAPI implements MapsAPI{
             queryResult = mapper.readValue(jsonAnswer, QueryResult.class);
         }
         catch (JsonMappingException e) {
-            e.printStackTrace();
-            //TODO: handle it and log it
+            LOGGER.debug("ERROR! Exception while deserialization: " + e.getMessage());
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            //TODO: handle it and log it
+            LOGGER.debug("ERROR! Exception while deserialization: " + e.getMessage());
         }
         return queryResult;
     }
 
+    /**just for test JSON deserialization**/
     private String testQueryResult(String path){
         String result = "";
         char[] buf = new char[1024];
@@ -212,7 +217,7 @@ public class TwoGisAPI implements MapsAPI{
                 result += new String(buf);
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOGGER.debug("ERROR! Exception while deserialization: " + e.getMessage());
             return null;
         } catch (IOException e) {
             e.printStackTrace();
@@ -221,6 +226,7 @@ public class TwoGisAPI implements MapsAPI{
     }//TODO: deleteme
 }
 
+/**************** Classes to deserialize JSON ***************/
 class QueryResult {
 
     private Meta     meta;

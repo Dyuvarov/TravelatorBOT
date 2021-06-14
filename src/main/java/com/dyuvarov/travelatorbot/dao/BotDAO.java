@@ -14,9 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
+import static com.dyuvarov.travelatorbot.TravelatorBotApplication.LOGGER;
+
+
+/**
+ * Data Access Object. Provides information from database, write new information in database
+ */
 @Component
 public class BotDAO {
 
@@ -29,6 +34,11 @@ public class BotDAO {
        this.searchesRepository = searchesRepository;
     }
 
+    /**
+     * Find user in database by chatId
+     * @param chatId
+     * @return TravelatorUser object
+     */
     public TravelatorUser getUser(Long chatId) {
         List<TravelatorUser> travelatorUserList = usersRepository.findByChatId(chatId);
         if (travelatorUserList.isEmpty())
@@ -37,23 +47,50 @@ public class BotDAO {
             return travelatorUserList.get(0);
     }
 
+    /**
+     * Add new user in database
+     * @param user - user to add
+     */
     public void addUser(TravelatorUser user) {
         usersRepository.save(user);
+        LOGGER.info("New user: " + user.getUserName());
     }
 
+    /**
+     * Set new state for user and update it in database
+     * @param user - user to update
+     * @param newState - state to set
+     */
     public void updateUsersState(TravelatorUser user, BotState newState) {
         user.setState(newState);
         usersRepository.save(user);
     }
 
+    /**
+     * Save search history in database. Need to reply on callback from inline keyboard
+     * @param messageId - Id of message with name of city
+     * @param chatId
+     * @param budgetType
+     * @param travelCost
+     */
     public void saveSearches(Integer messageId, Long chatId, BudgetType budgetType, TravelCost travelCost) {
         List<Search> searches = new ArrayList<>();
         for (Organisation organisation : travelCost.getOrganisations()) {
             searches.add(new Search(organisation, budgetType, chatId, messageId));
         }
+        LOGGER.info("Save searches for messageId= " + messageId);
         searchesRepository.saveAll(searches);
     }
 
+    /**
+     * Find organisations in database and return list of 3 organisations: cheap/expensive/all
+     * @param budgetType
+     * @param chatId
+     * @param messageId
+     * @param costType
+     * @return - if costType==CHEAP - 3 cheapest organisations, EXPENSIVE - 3 most expensive organisations,
+     * ALL - all organisations (max 3)
+     */
     public List<Organisation> findOrganisationsInSearch(BudgetType budgetType, Long chatId,
                                                         Integer messageId, CostType costType) {
         List<Search> searchesList = searchesRepository.findByBudgetTypeAndChatIdAndMessageIdOrderByCost(budgetType,

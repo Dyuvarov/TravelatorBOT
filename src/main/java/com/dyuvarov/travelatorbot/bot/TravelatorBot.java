@@ -1,11 +1,14 @@
 package com.dyuvarov.travelatorbot.bot;
 
+import com.dyuvarov.travelatorbot.TravelatorBotApplication;
 import com.dyuvarov.travelatorbot.dao.BotDAO;
 import com.dyuvarov.travelatorbot.dao.API.MapsAPI;
 import com.dyuvarov.travelatorbot.dao.CostType;
 import com.dyuvarov.travelatorbot.model.Organisation;
 import com.dyuvarov.travelatorbot.model.TravelCost;
 import com.dyuvarov.travelatorbot.entity.TravelatorUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +30,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dyuvarov.travelatorbot.TravelatorBotApplication.LOGGER;
+
+/**
+ * Bot main class
+ */
 @Component
 public class TravelatorBot extends TelegramLongPollingBot {
     private final String  botUserName;
@@ -44,16 +52,10 @@ public class TravelatorBot extends TelegramLongPollingBot {
         this.mapsAPI = mapsAPI;
     }
 
-    @Override
-    public String getBotUsername() {
-        return botUserName;
-    }
-
-    @Override
-    public String getBotToken() {
-        return botToken;
-    }
-
+    /**
+     * Handler for updates from users
+     * @param update - all information about update
+     */
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasCallbackQuery()) {
@@ -67,8 +69,7 @@ public class TravelatorBot extends TelegramLongPollingBot {
                 travelatorUser = new TravelatorUser(message.getFrom(), message.getChatId());
                 botDAO.addUser(travelatorUser);
             }
-
-             String msgText = message.getText();
+            String msgText = message.getText();
             if (msgText.equals(BotCommands.CALCULATE.getTitle())) {
                 sendMessageToUser(travelatorUser, BotMessages.getCalculateCommandMessage(), null);
                 botDAO.updateUsersState(travelatorUser, BotState.WAITING_DESTINATION);
@@ -87,30 +88,33 @@ public class TravelatorBot extends TelegramLongPollingBot {
             }
             else if (travelatorUser.getState() == BotState.WAITING_DESTINATION) {
                 String city = msgText;
-
+                LOGGER.info("Calculate request: User: " + travelatorUser.getUserName() + ". City: " + msgText);
                 TravelCost cateringCost = mapsAPI.calculateEating(city);
-                if (cateringCost == null)
-                    sendMessageToUser(travelatorUser, BotMessages.getInfoCommandMessage(), null);
+                if (cateringCost == null) {
+                    sendMessageToUser(travelatorUser, BotMessages.getCateringInformationNotFoundMessage(), null);
+                }
                 else {
                     InlineKeyboardMarkup cateringMarkup = null;
                     if (cateringCost.getOrganisations().size() < 6)
                         cateringMarkup = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId(), true);
                     else
                         cateringMarkup = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId(), false);
-                    sendMessageToUserMarkdown(travelatorUser, cateringCost.createMsg(city), cateringMarkup);
+                    sendMessageToUser(travelatorUser, cateringCost.createMsg(city), cateringMarkup);
                     botDAO.saveSearches(message.getMessageId(), travelatorUser.getChatId(), BudgetType.CATERING, cateringCost);
                 }
 
                 TravelCost hotelCost = mapsAPI.calculateLiving(city);
-                if (hotelCost == null)
-                    sendMessageToUser(travelatorUser, BotMessages.getInfoCommandMessage(), null);
+                if (hotelCost == null) {
+                    sendMessageToUser(travelatorUser, BotMessages.getHotelsInformationNotFoundMessage(), null);
+                }
                 else {
                     InlineKeyboardMarkup hotelMarkup = null;
                     if (hotelCost.getOrganisations().size() < 6)
                         hotelMarkup = createInlineMessageButtons(BudgetType.HOTEL, message.getMessageId(), true);
                     else
                         hotelMarkup = createInlineMessageButtons(BudgetType.HOTEL, message.getMessageId(), false);
-                    sendMessageToUserMarkdown(travelatorUser, hotelCost.createMsg(city), hotelMarkup);
+                    sendMessageToUser(travelatorUser, hotelCost.createMsg(city), hotelMarkup);
+
                     botDAO.saveSearches(message.getMessageId(), travelatorUser.getChatId(), BudgetType.HOTEL, hotelCost);
                 }
                 botDAO.updateUsersState(travelatorUser, BotState.NO_ACTION);
@@ -118,31 +122,32 @@ public class TravelatorBot extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * Send message to user. Handle markdown syntax
+     * @param travelatorUser
+     * @param message - string with message text
+     * @param markup - if not null add markup to message
+     */
     private void sendMessageToUser(TravelatorUser travelatorUser, String message, ReplyKeyboard markup) {
-        SendMessage sendMessage = new SendMessage(travelatorUser.getChatId().toString(), message);
-        if (markup != null)
-            sendMessage.setReplyMarkup(markup);
-        try {
-            execute(sendMessage);
-        }
-        catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendMessageToUserMarkdown(TravelatorUser travelatorUser, String message, ReplyKeyboard markup) {
+        LOGGER.info("Answer to user: " + travelatorUser.getUserName() + ". Text: " + message);
         SendMessage sendMessage = new SendMessage(travelatorUser.getChatId().toString(), message);
         sendMessage.enableMarkdown(true);
         if (markup != null)
             sendMessage.setReplyMarkup(markup);
         try {
             execute(sendMessage);
-        }
-        catch (TelegramApiException e) {
-            e.printStackTrace();
+        } catch (TelegramApiException e) {
+            LOGGER.debug("Send message error: " + e.getMessage());
         }
     }
 
+    /**
+     * Create buttons to send with message
+     * @param budgetType
+     * @param msgId - user's message Id
+     * @param oneButton - boolean. If true add one button "см. примеры", else add 2 buttons "см. дешевые", "см. дорогие".
+     * @return
+     */
     private InlineKeyboardMarkup createInlineMessageButtons(BudgetType budgetType, Integer msgId, boolean oneButton) {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowList = null;
@@ -172,6 +177,10 @@ public class TravelatorBot extends TelegramLongPollingBot {
         return markup;
     }
 
+    /**
+     * Create main menu commands
+     * @return
+     */
     private ReplyKeyboardMarkup  createMainMenu() {
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
@@ -188,6 +197,10 @@ public class TravelatorBot extends TelegramLongPollingBot {
         return replyKeyboardMarkup;
     }
 
+    /**
+     * Handle user's tap on inline keyboard button (button under message)
+     * @param update
+     */
     private void handleCallbackQuery(Update update) {
         CallbackQuery callbackQuery = update.getCallbackQuery();
 
@@ -196,6 +209,7 @@ public class TravelatorBot extends TelegramLongPollingBot {
             travelatorUser = new TravelatorUser(update.getCallbackQuery().getFrom(), update.getCallbackQuery().getMessage().getChatId());
             botDAO.addUser(travelatorUser);
         }
+        LOGGER.info("Callback. User: " + travelatorUser.getUserName() + ". Data: " + callbackQuery.getData());
         String[] data = callbackQuery.getData().split("_");
         CostType costType = null;
         BudgetType budgetType = null;
@@ -228,7 +242,17 @@ public class TravelatorBot extends TelegramLongPollingBot {
             return;
         }
 
-        sendMessageToUserMarkdown(travelatorUser, BotMessages.getOrganisationsMessage(organisations), null);
+        sendMessageToUser(travelatorUser, BotMessages.getOrganisationsMessage(organisations), null);
+    }
+
+    @Override
+    public String getBotUsername() {
+        return botUserName;
+    }
+
+    @Override
+    public String getBotToken() {
+        return botToken;
     }
 
 }

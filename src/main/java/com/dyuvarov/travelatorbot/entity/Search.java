@@ -7,6 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+/**
+ * class to store search history in database
+ */
 @Entity
 public class Search {
     @Id
