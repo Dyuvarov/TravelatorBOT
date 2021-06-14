@@ -3,12 +3,12 @@ package com.dyuvarov.travelatorbot.model;
 import java.util.*;
 
 public abstract class TravelCost {
-    Float               averagePrice;
+    Integer               averagePrice;
     Set<Organisation>   organisations;
 
     public TravelCost() {
         organisations = new HashSet<>();
-        averagePrice = 0.0f;
+        averagePrice = 0;
     }
 
     /**
@@ -28,10 +28,10 @@ public abstract class TravelCost {
         for (Organisation org : organisations) {
             sum += org.getCost();
         }
-        averagePrice = (float)sum / organisations.size();
+        averagePrice = sum / organisations.size();
     }
 
-    public Float getAveragePrice() {
+    public Integer getAveragePrice() {
         return averagePrice;
     }
 

@@ -97,7 +97,7 @@ public class TravelatorBot extends TelegramLongPollingBot {
                         cateringMarkup = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId(), true);
                     else
                         cateringMarkup = createInlineMessageButtons(BudgetType.CATERING, message.getMessageId(), false);
-                    sendMessageToUser(travelatorUser, cateringCost.createMsg(city), cateringMarkup);
+                    sendMessageToUserMarkdown(travelatorUser, cateringCost.createMsg(city), cateringMarkup);
                     botDAO.saveSearches(message.getMessageId(), travelatorUser.getChatId(), BudgetType.CATERING, cateringCost);
                 }
 
@@ -110,7 +110,7 @@ public class TravelatorBot extends TelegramLongPollingBot {
                         hotelMarkup = createInlineMessageButtons(BudgetType.HOTEL, message.getMessageId(), true);
                     else
                         hotelMarkup = createInlineMessageButtons(BudgetType.HOTEL, message.getMessageId(), false);
-                    sendMessageToUser(travelatorUser, hotelCost.createMsg(city), hotelMarkup);
+                    sendMessageToUserMarkdown(travelatorUser, hotelCost.createMsg(city), hotelMarkup);
                     botDAO.saveSearches(message.getMessageId(), travelatorUser.getChatId(), BudgetType.HOTEL, hotelCost);
                 }
                 botDAO.updateUsersState(travelatorUser, BotState.NO_ACTION);
