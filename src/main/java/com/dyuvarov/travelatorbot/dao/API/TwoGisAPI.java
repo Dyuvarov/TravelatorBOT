@@ -56,7 +56,9 @@ public class TwoGisAPI implements MapsAPI{
      * @return TravelCost object
      */
     private TravelCost calculateTravelPart(String city, String factor, String query) {
-        TravelCost travelCost;
+        TravelCost travelCost = null;
+        if ( city == null || city.isEmpty())
+            return travelCost;
         if (query.equals(HOTEL_QUERY))
            travelCost = new HotelCost();
         else if (query.equals(CATERING_QUERY))
@@ -65,7 +67,7 @@ public class TwoGisAPI implements MapsAPI{
             return null;
 
         int page = 1;
-        while (travelCost.getOrganisations().size() < 20 && page <= MAX_PAGE) { //TODO increase page count
+        while (travelCost.getOrganisations().size() < 20 && page <= MAX_PAGE) {
             QueryResult queryResult = askAPI(query + city, page);
             if (queryResult == null) {
                 ++page;
@@ -78,7 +80,6 @@ public class TwoGisAPI implements MapsAPI{
         if (travelCost.getOrganisations().isEmpty())
             return null;
         travelCost.calculateAvgPrice();
-        //TODO: add data in database
         return travelCost;
     }
 

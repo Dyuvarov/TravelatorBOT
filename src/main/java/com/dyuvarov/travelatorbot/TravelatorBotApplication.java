@@ -8,10 +8,9 @@ import org.telegram.telegrambots.*;
 
 @SpringBootApplication
 public class TravelatorBotApplication {
-    public static final Logger LOGGER = LoggerFactory.getLogger(TravelatorBotApplication.class);
+    public static Logger LOGGER = LoggerFactory.getLogger(TravelatorBotApplication.class);
 
     public static void main(String[] args) {
-        LOGGER.info("BOT STARTED");
         SpringApplication.run(TravelatorBotApplication.class, args);
     }
 

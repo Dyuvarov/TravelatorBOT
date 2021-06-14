@@ -1,14 +1,11 @@
 package com.dyuvarov.travelatorbot.bot;
 
-import com.dyuvarov.travelatorbot.TravelatorBotApplication;
 import com.dyuvarov.travelatorbot.dao.BotDAO;
 import com.dyuvarov.travelatorbot.dao.API.MapsAPI;
 import com.dyuvarov.travelatorbot.dao.CostType;
 import com.dyuvarov.travelatorbot.model.Organisation;
 import com.dyuvarov.travelatorbot.model.TravelCost;
 import com.dyuvarov.travelatorbot.entity.TravelatorUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -148,7 +145,10 @@ public class TravelatorBot extends TelegramLongPollingBot {
      * @param oneButton - boolean. If true add one button "см. примеры", else add 2 buttons "см. дешевые", "см. дорогие".
      * @return
      */
-    private InlineKeyboardMarkup createInlineMessageButtons(BudgetType budgetType, Integer msgId, boolean oneButton) {
+    public InlineKeyboardMarkup createInlineMessageButtons(BudgetType budgetType, Integer msgId, boolean oneButton) {
+        if (budgetType == null || msgId == null)
+            return null;
+
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowList = null;
 
@@ -181,7 +181,7 @@ public class TravelatorBot extends TelegramLongPollingBot {
      * Create main menu commands
      * @return
      */
-    private ReplyKeyboardMarkup  createMainMenu() {
+    public ReplyKeyboardMarkup  createMainMenu() {
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
         //one button per row
