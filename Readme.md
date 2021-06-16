@@ -48,15 +48,15 @@ Travelator  рассчитывает средний чек в заведения
 
 ### ENG
 ## Instruments  
-:small_blue_diamond: Java 8
-:small_blue_diamond: Spring Boot
-:small_blue_diamond: Spring Data
-:small_blue_diamond: JUint test
-:small_blue_diamond: Maven
-:small_blue_diamond: PostgreSQL
-:small_blue_diamond: Telegram API
-:small_blue_diamond: 2GIS API
-:small_blue_diamond: Docker  
+:small_blue_diamond: Java 8  
+:small_blue_diamond: Spring Boot  
+:small_blue_diamond: Spring Data  
+:small_blue_diamond: JUint test  
+:small_blue_diamond: Maven   
+:small_blue_diamond: PostgreSQL  
+:small_blue_diamond: Telegram API  
+:small_blue_diamond: 2GIS API  
+:small_blue_diamond: Docker    
   
 ## Description
 Travelator calculates average check in cafes and hotels in Russian cities. Also, bot can show you examples of cheap and expensive establishments.  
