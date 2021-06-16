@@ -157,7 +157,7 @@ public class TwoGisAPI implements MapsAPI{
      * @return QueryResult object
      */
     private QueryResult askAPI(String text, int page) {
-        RestTemplate restTemplate = new RestTemplate();
+//        RestTemplate restTemplate = new RestTemplate();
 
 //        String jsonAnswer = restTemplate.getForObject(createQuery(text, page),String.class);
 

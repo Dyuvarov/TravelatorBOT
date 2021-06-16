@@ -40,9 +40,8 @@ Travelator  рассчитывает средний чек в заведения
 Результаты поиска сохраняются в базе данных, это дает возможность пользователю вернуться позже и просмотреть список с примерами заведений из интересующего его города.
 
 ## Заупуск
-Все что нужно для запуска - docker compose. Находясь в корневой директории используйте команду:  
-1) docker-compose up  
-2) Дождитесь окончания запуска.  
+Все что нужно для запуска - docker compose. Находясь в корневой директории запустите скрипт:  
+bash start.sh  
 **Готово!**  
 
 ## Литература
@@ -86,8 +85,7 @@ Searching results stores in database, so user can later watch the examples of es
 
 ## Launching
 All you need to launch is docker compose. In root directory use command:  
-1) docker-compose up  
-2) Wait launching end  
+bash start.sh   
 **Done!**  
 
 ## Literature
