@@ -7,7 +7,7 @@
 ### RU
 
 ## Инстументы:  
-:small_blue_diamond: Java 8
+:small_blue_diamond: Java 8  
 :small_blue_diamond: Spring Boot  
 :small_blue_diamond: Spring Data  
 :small_blue_diamond: JUint test  
