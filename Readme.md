@@ -65,7 +65,7 @@ Bot's name in telegram: @travel_cost_bot
   
 Information about establishments provided py 2GIS. Thank them :blue_heart:  
 
-:bangbang: Important: because the usage of 2GIS API key is limited, bot get information from files in answerExamples directory. It means regardless of the city you have chosen 
+:bangbang: **Important**: because the usage of 2GIS API key is limited, bot get information from files in answerExamples directory. It means regardless of the city you have chosen 
 bot will always answer you same. I did it on purpose to be abel to demonstrate that bot working even if my API key will not work.  
 
 ## How it works
