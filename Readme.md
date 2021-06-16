@@ -54,7 +54,7 @@ bash start.sh
 ## Instruments  
 :small_blue_diamond: Java 8  
 :small_blue_diamond: Spring Boot  
-:small_blue_diamond: Spring Data JPA 
+:small_blue_diamond: Spring Data JPA  
 :small_blue_diamond: JUint test  
 :small_blue_diamond: Maven   
 :small_blue_diamond: PostgreSQL  
