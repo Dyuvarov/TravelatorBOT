@@ -9,7 +9,7 @@
 ## Инстументы:  
 :small_blue_diamond: Java 8  
 :small_blue_diamond: Spring Boot  
-:small_blue_diamond: Spring Data  
+:small_blue_diamond: Spring Data JPA  
 :small_blue_diamond: JUint test  
 :small_blue_diamond: Maven  
 :small_blue_diamond: PostgreSQL  
@@ -45,12 +45,17 @@ Travelator  рассчитывает средний чек в заведения
 2) Дождитесь окончания запуска.  
 **Готово!**  
 
+## Литература
+* [Telegram Bot API](https://core.telegram.org/bots/api#inline-mode)  
+* [2GIS API](https://docs.2gis.com/ru/api/search/places/reference/3.0/items)  
+* [Статья о Telegrambots spring boot starter](https://javarush.ru/groups/posts/2959-sozdaem-telegram-bota-s-ispoljhzovaniem-spring-boot)  
+* [Официальные гайды по Spring](https://spring.io/guides)  
 
 ### ENG
 ## Instruments  
 :small_blue_diamond: Java 8  
 :small_blue_diamond: Spring Boot  
-:small_blue_diamond: Spring Data  
+:small_blue_diamond: Spring Data JPA 
 :small_blue_diamond: JUint test  
 :small_blue_diamond: Maven   
 :small_blue_diamond: PostgreSQL  
@@ -79,8 +84,14 @@ It's simple to use another API, you just need to create class that implements Ma
 Searching results stores in database, so user can later watch the examples of establishments.
 
 
-# Launching
+## Launching
 All you need to launch is docker compose. In root directory use command:  
 1) docker-compose up  
 2) Wait launching end  
-**Done!**
+**Done!**  
+
+## Literature
+* [Telegram Bot API](https://core.telegram.org/bots/api#inline-mode)  
+* [2GIS API](https://docs.2gis.com/en/api/search/places/reference/3.0/items)  
+* [Article about Telegrambots spring boot starter](https://javarush.ru/groups/posts/2959-sozdaem-telegram-bota-s-ispoljhzovaniem-spring-boot)  
+* [Oficial Spring guides](https://spring.io/guides)  
