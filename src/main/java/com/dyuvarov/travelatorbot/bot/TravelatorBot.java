@@ -85,7 +85,7 @@ public class TravelatorBot extends TelegramLongPollingBot {
             }
             else if (travelatorUser.getState() == BotState.WAITING_DESTINATION) {
                 String city = msgText;
-                LOGGER.info("Calculate request: User: " + travelatorUser.getUserName() + ". City: " + msgText);
+                LOGGER.info("Calculate request: User: " + travelatorUser.getUserName() + ". City: " + city);
                 TravelCost cateringCost = mapsAPI.calculateEating(city);
                 if (cateringCost == null) {
                     sendMessageToUser(travelatorUser, BotMessages.getCateringInformationNotFoundMessage(), null);

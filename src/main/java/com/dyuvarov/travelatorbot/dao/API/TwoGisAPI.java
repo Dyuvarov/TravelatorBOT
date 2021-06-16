@@ -65,7 +65,7 @@ public class TwoGisAPI implements MapsAPI{
             travelCost = new CateringCost();
         else
             return null;
-
+        LOGGER.info("Calculating travel: city:" + city + "| factor: " + factor + "| query: " + query);
         int page = 1;
         while (travelCost.getOrganisations().size() < 20 && page <= MAX_PAGE) {
             QueryResult queryResult = askAPI(query + city, page);
@@ -165,10 +165,10 @@ public class TwoGisAPI implements MapsAPI{
         if (page > 1)
             return null;
         String jsonAnswer = "";
-        if (text.contains(HOTEL_QUERY))
-            jsonAnswer  = testQueryResult("/Users/ugreyiro/JavaProj/TravelatorBOT/hotelAnsw2org");
+        if (text.contains(CATERING_QUERY))
+            jsonAnswer  = testQueryResult("answerExamples/answ.txt");
         else
-            jsonAnswer = testQueryResult("/Users/ugreyiro/JavaProj/TravelatorBOT/answ.txt");
+            jsonAnswer = testQueryResult("answerExamples/hotelAnsw2org");
 
         return (deserializeJson(jsonAnswer));
     }
@@ -211,7 +211,6 @@ public class TwoGisAPI implements MapsAPI{
         String result = "";
         char[] buf = new char[1024];
         try {
-//            FileReader reader = new FileReader("/Users/ugreyiro/JavaProj/TravelatorBOT/answ.txt");
             FileReader reader = new FileReader(path);
             while (reader.read(buf) != -1)
             {

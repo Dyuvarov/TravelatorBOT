@@ -3,8 +3,8 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-hotelAnsw
-answ.txt
+answerExamples/hotelAnsw
+answerExamples/answ.txt
 .DS_STORE
 DataBase/*
 
