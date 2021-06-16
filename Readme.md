@@ -80,7 +80,7 @@ Searching results stores in database, so user can later watch the examples of es
 
 
 # Launching
-All you need to launch - docker compose. In root directory use command:  
+All you need to launch is docker compose. In root directory use command:  
 1) docker-compose up  
 2) Wait launching end  
 **Done!**
