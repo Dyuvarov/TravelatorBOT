@@ -1,7 +1,7 @@
 # Telegram bot TRAVELATOR
 
 ![example](chat.png)
-<p align="center"> [RU :ru:](#RU)  [EN :us:](#ENG) </p>
+[RU :ru:](#RU)  [EN :us:](#ENG)
 
 ### RU
 
