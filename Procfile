@@ -1,1 +1,2 @@
- java -jar target/TravelatorBot.jar
+mvnw clean package
+java -jar target/TravelatorBot.jar
